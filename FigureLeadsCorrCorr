@@ -4,7 +4,6 @@ format long;
 
 %% Load data
 folder = "C:\Users\vanes\OneDrive\Documentos\Ubun_vanessa\Dengue_Total_Thay\Dengue_thay_dataM_prov3(post)\Dengue_thay_dataM_prov3(post)";
-%folder = "C:\Users\vanes\OneDrive\Documentos\Ubun_vanessa\Dengue_Total_Thay\Matlab_Thay\3IMF_standar";
 
 files = dir(fullfile(folder,'*.csv'));
 
@@ -17,16 +16,10 @@ y = cell(1,numel(files));
 
 for k = 1:numel(files)
 
-     T = readtable(fullfile(folder,files(k).name));
-   % 
+     T = readtable(fullfile(folder,files(k).name)); 
      x = T.Incidence_norm;
-
-  % x = T.Var1;
-    x = log(x+1);
-  % 
-   x = (x-mean(x))/std(x);
-
- 
+     x = log(x+1);
+     x = (x-mean(x))/std(x);
     y{k} = x;
 
 end
