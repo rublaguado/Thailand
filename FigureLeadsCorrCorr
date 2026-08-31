@@ -1,0 +1,119 @@
+close all; clear all;
+clc;
+format long;
+
+%% Load data
+folder = "C:\Users\vanes\OneDrive\Documentos\Ubun_vanessa\Dengue_Total_Thay\Dengue_thay_dataM_prov3(post)\Dengue_thay_dataM_prov3(post)";
+%folder = "C:\Users\vanes\OneDrive\Documentos\Ubun_vanessa\Dengue_Total_Thay\Matlab_Thay\3IMF_standar";
+
+files = dir(fullfile(folder,'*.csv'));
+
+addpath 'C:\Users\vanes\OneDrive\Documentos\Ubun_vanessa\Dengue_Total_Thay\Matlab_Thay\natsortfiles'
+files = natsortfiles(files);
+
+%% Read and standardize data
+
+y = cell(1,numel(files));
+
+for k = 1:numel(files)
+
+     T = readtable(fullfile(folder,files(k).name));
+   % 
+     x = T.Incidence_norm;
+
+  % x = T.Var1;
+    x = log(x+1);
+  % 
+   x = (x-mean(x))/std(x);
+
+ 
+    y{k} = x;
+
+end
+
+%% Parameters
+
+lag_range = -10:10;
+num_provinces = numel(files);
+
+Summary = cell(num_provinces,1);
+
+%% Loop through reference provinces
+
+for ref_idx = 1:num_provinces
+
+    t = y{ref_idx};
+
+    max_corr = zeros(num_provinces,1);
+    peak_lags = zeros(num_provinces,1);
+
+    for target_idx = 1:num_provinces
+
+        c_temp = xcorr(y{target_idx},t,10,'normalized');
+
+        [max_corr(target_idx),idx] = max(c_temp);
+
+        peak_lags(target_idx) = lag_range(idx);
+
+    end
+
+    %% Keep only strong positive correlations
+
+    valid = max_corr > 0.7;
+
+    filtered_lags = peak_lags(valid);
+
+    %% Count provinces that lead the reference
+
+    num_lag_neg = sum(filtered_lags < 0);
+
+    %% Count provinces led by reference
+    if num_lag_neg == 0
+        num_leading = sum(filtered_lags > 0);
+    else
+        num_leading = 0;
+    end
+
+    Summary{ref_idx} = struct( ...
+        'ReferenceProvince', ref_idx, ...
+        'NumLagNeg', num_lag_neg, ...
+        'NumLeading', num_leading, ...
+        'PeakLags', peak_lags, ...
+        'MaxCorr', max_corr );
+
+    fprintf('Province %d : lag<0 = %d, lead = %d\n', ...
+        ref_idx, num_lag_neg, num_leading);
+
+end
+
+%% Extract results
+
+num_lag_neg = cellfun(@(s)s.NumLagNeg,Summary);
+num_leading = cellfun(@(s)s.NumLeading,Summary);
+
+[~,best_province_idx] = max(num_leading);
+
+%% Plot
+
+figure;
+hold on
+
+bar(1:num_provinces,num_lag_neg,0.4,'b');
+bar(1:num_provinces,num_leading,0.4,'r');
+
+xline(best_province_idx,'--k','LineWidth',2);
+
+hold off
+
+xlabel('Province');
+ylabel('Number of provinces');
+title('Lead-Lag Relationships');
+
+legend('Lag < 0 (Province Lags)','Lead > 0 (Province Leads, No Lag < 0)','Best leader');
+
+xlim([0 num_provinces+1])
+xticks(1:2:num_provinces);
+xticklabels(string(1:2:num_provinces));
+
+
+set(gca,'FontSize',14)
