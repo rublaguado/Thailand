@@ -10,5 +10,5 @@ For each CSV:
 - Rows must refer to the same dates, in the same chronological order, across all provinces.
 - There should be no missing or infinite incidence values.
 
-Denoting the incidence of a province by $x$, the standardized data is:
+Denoting the incidence of a province by $x$, the standardized data is:\
 $$ y = \frac{\log(x+1)-mean(\log(x+1))}{std(\log(x+1))} $$
