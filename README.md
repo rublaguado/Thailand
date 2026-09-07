@@ -9,6 +9,7 @@ For each CSV:
 - All files must have the same number of rows.
 - Rows must refer to the same dates, in the same chronological order, across all provinces.
 - There should be no missing or infinite incidence values.
+- Files are order according the list of provinces provided in Figure 8 of the refered paper.
 
 Denoting the incidence of a province by $x$, the standardized data is:\
 ```math
