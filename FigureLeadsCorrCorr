@@ -34,7 +34,7 @@ for ref_idx = 1:num_provinces                    % for each province refrence
     for target_idx = 1:num_provinces
         c_temp = xcorr(y{target_idx},t,10,'normalized');  % calculate the correlation between two provinces
         [max_corr(target_idx),idx] = max(c_temp);   % store the max correlation value
-        peak_lags(target_idx) = lag_range(idx);     % and the tardex lag index
+        peak_lags(target_idx) = lag_range(idx);     % and the target lag index
     end
 
     %% Keep only strong positive correlations
